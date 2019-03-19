@@ -25,7 +25,7 @@ node {
   stage('Fetch code and build an image') {
       checkout([$class: 'GitSCM', 
                 branches: [[name: 'infra/spinnaker']], 
-                userRemoteConfigs: [[url: 'https://github.com/serhii-dog/test-hello-world.git']]])
+                userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/serhii-dog/test-hello-world.git']]])
       
       building.buildAnImage("serhii2dog/test", "${params.ReleaseVersion}", envVars:'${params.EnvVars}', buildArgs: '${params.BuildArgs}')
   }
