@@ -36,7 +36,7 @@ node {
   }
   
   stage('Creating propery file') {
-      sh "echo "VERSION=${params.ReleaseVersion}" > build.properties"
+      sh "echo VERSION=${params.ReleaseVersion} > build.properties"
   }
   
   stage('Archiving property file') {
