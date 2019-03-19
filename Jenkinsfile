@@ -35,4 +35,12 @@ node {
       building.pushAnImage("serhii2dog/test", "${params.ReleaseVersion}")
   }
   
+  stage('Creating propery file') {
+      sh "echo "VERSION=${params.ReleaseVersion}" > build.properties"
+  }
+  
+  stage('Archiving property file') {
+      archiveArtifacts 'build.properties'
+  }
+  
 }
