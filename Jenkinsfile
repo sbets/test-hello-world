@@ -5,13 +5,9 @@
 def credentialsId = "dockerhub"
 def registryUrl = "docker.io"
 
-def utils = new Utilities(this)
 def registry = new DockerRegistryCredentials()
 def registryLogin = new DockerRegistryLogin()
 def building = new Images(this)
-def k8sCluster = new KubernetesInitConnection(this)
-def helm = new HelmInit(this)
-def secret = new KubeSecret(this)
 
 node {
   log.info 'Starting...'
