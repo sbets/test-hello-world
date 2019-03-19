@@ -14,11 +14,8 @@ def helm = new HelmInit(this)
 def secret = new KubeSecret(this)
 
 node {
-  log.info 'Starting'
-  
-  stage('Get list of system environment variables') {
-      utils.mvn('env')
-  }
+  log.info 'Starting...'
+  log.info 'Getting credentials for DockerRegistry...'
   
   stage('Get Docker Registry credentials and Login to') {
       password = registry.getPassword(credentialsId)
@@ -27,36 +24,19 @@ node {
       login = registryLogin.loginToDockerRegistry(registryUrl, username, password)
       sh "echo ${login}"
   }
+  log.info 'Building docker image...'
   
   stage('Fetch code and build an image') {
       checkout([$class: 'GitSCM', 
-                branches: [[name: '*/master']], 
+                branches: [[name: 'infra/spinnaker']], 
                 userRemoteConfigs: [[url: 'https://github.com/serhii-dog/test-hello-world.git']]])
       
       building.buildAnImage("serhii2dog/test", "${params.ReleaseVersion}", envVars:'${params.EnvVars}', buildArgs: '${params.BuildArgs}')
   }
+  log.info 'Pushing docker image...'
   
   stage('Push docker image to registry') {
       building.pushAnImage("serhii2dog/test", "${params.ReleaseVersion}")
   }
   
-  stage('Init connection to K8S') {
-      k8sCluster.initGoogleKubernetesConnection("lrcwebsite", "k8s-cs-pipeline")
-  }
-  
-  stage('Create secrets') {
-      secret.addPrivateRegistryCredentials(registryUrl, credentialsId)
-  }
-  
-  stage('Init Helm') {
-      helm.initHelmCli()
-  }
-  
-  stage('Deploy application') {
-      checkout([$class: 'GitSCM', 
-                branches: [[name: 'infra/basic']], 
-                userRemoteConfigs: [[url: 'https://github.com/serhii-dog/hello-world-helm.git']]])
-      
-      helm.deployHelmChart("hello-world-helm", "${params.ReleaseVersion}")
-  }
 }
